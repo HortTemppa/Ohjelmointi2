@@ -5,7 +5,8 @@
 <head>
 <meta charset="utf-8">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<title>Tittelimies</title>
 <style>
 .oikealle{
 	text-align: right;
@@ -27,7 +28,8 @@
 			<th>Etunimi</th>
 			<th>Sukunimi</th>
 			<th>Puhelin</th>
-			<th>Sähköposti</th>							
+			<th>Sähköposti</th>		
+			<th></th>					
 		</tr>
 	</thead>
 	<tbody>
@@ -63,13 +65,28 @@ function haeAsiakkaat(){
         	htmlStr+="<td>"+field.etunimi+"</td>";
         	htmlStr+="<td>"+field.sukunimi+"</td>";
         	htmlStr+="<td>"+field.puhelin+"</td>";
-        	htmlStr+="<td>"+field.sposti+"</td>";  
-        	htmlStr+="</tr>";
+        	htmlStr+="<td>"+field.sposti+"</td>"; 
+        	htmlStr+="<td><span class='poista' onclick=poista('" +field.etunimi + "','" + field.sukunimi +"','" + field.sposti+"')>Poista</span></td>";
+        	htmlStr+="</tr>"; 
         	$("#listaus tbody").append(htmlStr);
         });	
     }});
+	
+	
 }
-
+function poista(etunimi, sukunimi, sposti){
+	if(confirm("Poista auto " + etunimi + " " + sukunimi +"?")){
+		$.ajax({url:"asiakkaat/"+sposti, type:"DELETE", dataType:"json", success:function(result){
+	        if(result.response==0){
+	        	$("#ilmo").html("Henkilön poisto epäonnistui.");
+	        }else if(result.response==1){
+	        	$("#rivi_"+etunimi+sukunimi).css("background-color", "red");
+	        	alert("Henkilön " + etunimi + sukunimi +" poisto onnistui.");
+				haeAsiakkaat();        	
+			}
+	    }});
+	}
+}
 </script>
 </body>
 </html>
