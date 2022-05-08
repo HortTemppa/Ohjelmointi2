@@ -66,6 +66,7 @@ function haeAsiakkaat(){
         	htmlStr+="<td>"+field.sukunimi+"</td>";
         	htmlStr+="<td>"+field.puhelin+"</td>";
         	htmlStr+="<td>"+field.sposti+"</td>"; 
+        	htmlStr+="<td><a href='muutaasiakas.jsp?sposti="+field.sposti+"'>Muuta</a>&nbsp;"; 
         	htmlStr+="<td><span class='poista' onclick=poista('" +field.etunimi + "','" + field.sukunimi +"','" + field.sposti+"')>Poista</span></td>";
         	htmlStr+="</tr>"; 
         	$("#listaus tbody").append(htmlStr);
