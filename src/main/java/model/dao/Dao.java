@@ -17,8 +17,8 @@ public class Dao {
 	private Connection yhdista(){
     	Connection con = null;    	
     	String path = System.getProperty("catalina.base");   
-    	path =  new File(System.getProperty("user.dir")).getParentFile().toString() +"\\"; //Testauksessa
-    	//path = path.substring(0, path.indexOf(".metadata")).replace("\\", "/"); //Eclipsessa
+    	//path =  new File(System.getProperty("user.dir")).getParentFile().toString() +"\\"; //Testauksessa
+    	path = path.substring(0, path.indexOf(".metadata")).replace("\\", "/"); //Eclipsessa
     	//path += "/webapps/"; //Tuotannossa. Laita tietokanta webapps-kansioon
     	String url = "jdbc:sqlite:"+path+db;    	
     	try {	       

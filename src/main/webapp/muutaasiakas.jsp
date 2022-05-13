@@ -10,12 +10,12 @@
 <link rel="stylesheet" type="text/css" href="css/main.css">
 <title>Muuta tietoja</title>
 </head>
-<body>
+<body onkeydown = tutkiKeyX(event)>
 <form id="tiedot">
 	<table>
 		<thead>	
 			<tr>
-				<th colspan="5" class="oikealle"><span id="takaisin">Takaisin listaukseen</span></th>
+				<th colspan="5" class="oikealle"><a href="listaaAsiakkaat.jsp">Takaisin listaukseen</a></th>
 			</tr>		
 			<tr>
 				<th>Etunimi</th>
@@ -31,7 +31,7 @@
 				<td><input type="text" name="sukunimi" id="sukunimi"></td>
 				<td><input type="text" name="puhelin" id="puhelin"></td>
 				<td><input type="text" name="sposti" id="sposti"></td> 
-				<td><input type="submit" id="tallenna" value="Hyväksy"></td>
+				<td><input type="button" id="tallenna" value="Hyväksy" onclick = "vieTiedot()"></td>
 				<td><input type="hidden" name="vanhasposti" id="vanhasposti"></td>	
 			</tr>
 		</tbody>
@@ -41,7 +41,86 @@
 <span id="ilmo"></span>
 </body>
 <script>
-$(document).ready(function(){
+
+docReady( function () {
+	
+	document.getElementById("etunimi").focus()
+	
+	const sposti = requestURLParam("sposti");
+	
+	fetch("asiakkaat/haeyksi/" + sposti).then((response => response.json())).then(json => {
+		
+		return json;
+	}).then((asiakas) => {
+		document.getElementById('etunimi').value = asiakas.etunimi;
+		document.getElementById('sukunimi').value = asiakas.sukunimi;
+		document.getElementById('puhelin').value = asiakas.puhelin;
+		document.getElementById('sposti').value = asiakas.sposti;
+		document.getElementById("vanhasposti").value = sposti;
+	})
+	
+	
+})
+function vieTiedot(){
+		var ilmo="";
+		var d = new Date();
+		if(document.getElementById("etunimi").value.length<1){
+			ilmo="Etunimi ei kelpaa!";		
+		}else if(document.getElementById("sukunimi").value.length<1){
+			ilmo="Sukunimi!";		
+		}else if(document.getElementById("puhelin").value.length<7){
+			ilmo="Puhelinnumero ei kelpaa!";		
+		}else if(document.getElementById("sposti").value<4){
+			ilmo="Sähköposti ei kelpaa";		
+		}
+		if(ilmo!=""){
+			document.getElementById("ilmo").innerHTML=ilmo;
+			setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 3000);
+			return;
+		}
+		document.getElementById("etunimi").value=siivoa(document.getElementById("etunimi").value);
+		document.getElementById("sukunimi").value=siivoa(document.getElementById("sukunimi").value);
+		document.getElementById("puhelin").value=siivoa(document.getElementById("puhelin").value);
+		document.getElementById("sposti").value=siivoa(document.getElementById("sposti").value);	
+		
+		var formJsonStr=formDataToJSON(document.getElementById("tiedot")); //muutetaan lomakkeen tiedot json-stringiksi
+		console.log(formJsonStr);
+		//L�het��n muutetut tiedot backendiin
+		fetch("asiakkaat",{//L�hetet��n kutsu backendiin
+		      method: 'PUT',
+		      body:formJsonStr
+		    })
+		.then( function (response) {//Odotetaan vastausta ja muutetaan JSON-vastaus objektiksi
+			return response.json();
+		})
+		.then( function (responseJson) {//Otetaan vastaan objekti responseJson-parametriss�	
+			var vastaus = responseJson.response;		
+			if(vastaus==0){
+				document.getElementById("ilmo").innerHTML= "Tietojen päivitys epäonnistui";
+	        }else if(vastaus==1){	        	
+	        	document.getElementById("ilmo").innerHTML= "Tietojen päivitys onnistui";			      	
+			}	
+			setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 5000);
+		});	
+		document.getElementById("tiedot").reset(); //tyhjennet��n tiedot -lomake
+	}
+function tutkiKeyX(event){
+		if(event.keyCode==13){//Enter
+			vieTiedot();
+		}		
+	}
+
+
+function docReady(fn) {
+    // see if DOM is already available
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        // call on next available tick
+        setTimeout(fn, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", fn);
+    }
+}    
+/*$(document).ready(function(){
 	$("#takaisin").click(function(){
 		document.location="listaaAsiakkaat.jsp";
 	});
@@ -101,7 +180,7 @@ $(document).ready(function(){
 			paivitaTiedot();
 		}		
 	}); 	
-});
+})*/;
 
 function paivitaTiedot(){	
 	var formJsonStr = formDataJsonStr($("#tiedot").serializeArray()); 
